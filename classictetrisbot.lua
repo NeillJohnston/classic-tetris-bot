@@ -25,7 +25,7 @@ if botname == "random" then
 end
 
 -- Main 
-emu.speedmode("normal");
+-- emu.speedmode("normal");
 
 local process, pipe = winapi.spawn_process("bin/bot " .. botname)
 emu.registerexit(function()
@@ -37,13 +37,15 @@ end)
 print(pipe:read())
 
 local states = {
+	menu1 = -1,
+	menu2 = 0,
 	deciding = 1,
 	reading = 2,
 	placing1 = 3,
 	placing2 = 4,
 	waiting = 5
 }
-local state = states.deciding
+local state = states.menu1
 local decision = nil
 local hint = nil
 
@@ -65,7 +67,22 @@ while true do
 		guiutil.drawpiece(hint, "green")
 	end
 
-	if state == states.deciding then
+	if state == states.menu1 then
+		local input = blankjoypad()
+		input.A = true
+		joypad.write(1, input)
+
+		state = states.menu2
+	
+	elseif state == states.menu2 then
+		local input = blankjoypad()
+		input.A = true
+		input.start = true
+		joypad.write(1, input)
+
+		state = states.waiting
+	
+	elseif state == states.deciding then
 		pipe:write(string.format("%d\n", pieceid))
 		pipe:write(string.format("%d\n", nextpieceid))
 		for i=0,19 do
@@ -83,7 +100,6 @@ while true do
 
 	elseif state == states.reading then
 		decisionstring = pipe:read()
-		print(decisionstring)
 		local temp = {}
 		for token in decisionstring:gmatch("[^ ]+") do
 			table.insert(temp, token)
@@ -94,9 +110,6 @@ while true do
 			y = tonumber(temp[3]),
 			action = tonumber(temp[4])
 		}
---		if decision.action ~= 0 then
---			emu.pause()
---		end
 		state = states.placing1
 
 		if guidebug then

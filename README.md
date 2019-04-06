@@ -10,7 +10,7 @@ First of all, I'm afraid this only works in Windows. My apologies.
 4. In the Lua Script window, open classictetrisbot.lua (but don't run it yet).
 5. In the Arguments field, put "srvive -d". This will run the bot named "srvive." The -d flag will put a green highlight where the bot has chosen to place a piece.
 5. In FCEUX, open the Tetris ROM file.
-6. Start a game in Tetris and press run in the Lua Script window. (In NES Tetris, you can choose to start at any level between 0 and 19, 19 being the fastest. To start at a level above 9, highlight a level and hold A while pressing start to start at level 10+<level>.)
+6. Get to the Type A level select screen and hover over 9 (it might be smart to make a savestate here). Press Run in the Lua Script window to run the bot and start the game.
 
 ## Writing Bots
 A "bot" is basically a function that evaluates a decision and outputs a number, a higher number represents a better decision. Writing a simple bot is pretty easy, and you can use this repository as a framework to write your own.
@@ -26,9 +26,9 @@ double newbot(decision_t decision) {
 ```
 3. Replace `newbot` with whatever you want to call your function.
 4. Write your function. Good luck.
-5. Navigate to the src/ directory and open bot_list.h.
+5. Navigate to the src/ directory and open `bot_list.h`.
 6. `#include` your header file.
-7. In the array bot_list, make a new entry:
+7. In the array `bot_list`, make a new entry:
 ```
 {
     "newbot",
