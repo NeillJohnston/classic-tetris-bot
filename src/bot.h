@@ -1,7 +1,7 @@
-#include <algorithm>
-
 #ifndef BOT_H
 #define BOT_H
+
+#include <algorithm>
 
 const int EMPTY_ROW = 0b0000000000;
 const int FULL_ROW = 0b1111111111;
