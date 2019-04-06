@@ -2,39 +2,10 @@
 #define BOT_H
 
 #include <algorithm>
+#include <string>
 
 const int EMPTY_ROW = 0b0000000000;
 const int FULL_ROW = 0b1111111111;
-
-/* action_t
- *
- * Used to pass information to the emulator script about what to do when the piece reaches a certain y-value.
- */
-enum action_t {
-	no_action = 0,
-	tuck_left,
-	tuck_right,
-	spin_left,
-	spin_right
-};
-
-/* decision_t
- *
- * Used to identify decisions and pass information to the emulator script.
- *
- * Grid represents the consequence of making this decision.
- * It has 2 rows of padding on both sides to make piece checking and such easier.
- * The top 2 padding rows (grid[0] and grid[1]) should be all 0s,
- * the bottom 2 padding rows (grid[22] and grid[23]) should be all 1s.
- */
-struct decision_t {
-	int piece;
-	int x;
-	int y;
-	action_t action;
-	int grid [24];
-	int n_lines;
-};
 
 const int N_ROTATIONS [19] = {
 	4, 4, 4, 4,
@@ -71,7 +42,7 @@ int piece_min_x [19];
 int piece_max_x [19];
 
 /* 5x5 grids indexable by piece id, used to generate piecemasks.
- * The masks may look backward on both axes - this is to ensure that:
+ * The masks may look backward on both axes - this->is to ensure that:
  * 1. The lowest bit corresponds to the lowest x-coordinate
  * 2. The highest index corresponds to the highest y-coordinate
  */
@@ -211,28 +182,110 @@ int clear(int grid[]) {
 
 /* drop(piece, x, grid)
  *
- * Get a decision resulting from dropping piece on the board at (x,0).
+ * Get the y-value of a piece that drops due to gravity alone.
  */
-decision_t drop(int piece, int x, int const grid[]) {
-	decision_t ans = {piece, x, -2, no_action};
-	int y;
-	for (y = 0; y <= 20; y++) {
+int drop(int piece, int x, int y, int const grid[]) {
+	for (; y <= 20; y++) {
 		if (piece_overlaps(piece, x, y, grid)) {
-			y--;
-			ans.y = y;
-			break;
+			return y-1;
 		}
 	}
 
-	//overlay(piece, x, y, ans.grid, grid);
-	std::copy(&grid[0], &grid[24], &ans.grid[0]);
-
-	for (int i = 0; i < 5; i++) {
-		ans.grid[y+i] = grid[y+i] | piecemasks[piece][x][i];
-	}
-	ans.n_lines = clear(ans.grid);
-
-	return ans;
+	return y;
 }
+
+/* action_t
+ *
+ * Used to pass information to the emulator script about what to do when the piece reaches a certain y-value.
+ */
+enum action_t {
+	no_action = 0,
+	tuck_left,
+	tuck_right,
+	spin_left,
+	spin_right
+};
+
+/* decision_t
+ *
+ * Used to identify decisions and pass information to the emulator script.
+ *
+ * Grid represents the consequence of making this->decision.
+ * It has 2 rows of padding on both sides to make piece checking and such easier.
+ * The top 2 padding rows (grid[0] and grid[1]) should be all 0s,
+ * the bottom 2 padding rows (grid[22] and grid[23]) should be all 1s.
+ */
+struct decision_t {
+	// Information needed to make the decision
+	int piece;
+	int x;
+	int y;
+	action_t action;
+	// Consequence of the decision
+	int grid [24];
+	int n_lines;
+	int n_singles;
+	int n_doubles;
+	int n_triples;
+	int n_tetrises;
+
+	decision_t() {
+	}
+
+	decision_t(int piece, int x, int y, action_t action, const int grid[]) {
+		this->piece = piece;
+		this->x = x;
+		this->y = y;
+		this->action = action;
+		if (action == no_action)
+			overlay(piece, x, y, this->grid, grid);
+		else if (action == tuck_left)
+			overlay(piece, x-1, drop(piece, x-1, y, grid), this->grid, grid);
+		else if (action == tuck_right)
+			overlay(piece, x+1, drop(piece, x+1, y, grid), this->grid, grid);
+		else if (action == spin_left)
+			overlay(LEFT_ROTATION[piece], x, drop(LEFT_ROTATION[piece], x, y, grid), this->grid, grid);
+		else if (action == spin_right)
+			overlay(RIGHT_ROTATION[piece], x, drop(RIGHT_ROTATION[piece], x, y, grid), this->grid, grid);
+
+		this->n_lines = clear(this->grid);
+
+		this->n_singles = 0;
+		this->n_doubles = 0;
+		this->n_triples = 0;
+		this->n_tetrises = 0;
+
+		if (this->n_lines == 1)
+			this->n_singles++;
+		else if (this->n_lines == 2)
+			this->n_doubles++;
+		else if (this->n_lines == 3)
+			this->n_triples++;
+		else if (this->n_lines == 4)
+			this->n_tetrises++;
+	}
+
+	void chain_to(const decision_t& parent) {
+		this->piece = parent.piece;
+		this->x = parent.x;
+		this->y = parent.y;
+		this->action = parent.action;
+
+		this->n_lines += parent.n_lines;
+		this->n_singles += parent.n_singles;
+		this->n_doubles += parent.n_doubles;
+		this->n_triples += parent.n_triples;
+		this->n_tetrises += parent.n_tetrises;
+	}
+};
+
+/* bot
+ *
+ * Holds information for the roster in bot_list.h.
+ */
+struct bot {
+	std::string name;
+	double (*function)(decision_t);
+};
 
 #endif

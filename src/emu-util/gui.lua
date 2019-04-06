@@ -1,4 +1,4 @@
-local memutil = require("memutil")
+local memutil = require("memory")
 
 local exports = {}
 

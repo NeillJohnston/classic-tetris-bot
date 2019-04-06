@@ -1,9 +1,8 @@
 local winapi = require("winapi")
-
-local guiutil = require("src/emu/guiutil")
-local memutil = require("src/emu/memutil")
+local guiutil = require([[src\emu-util\gui]])
+local memutil = require([[src\emu-util\memory]])
 local ram = memutil.ram
-local pieceutil = require("src/emu/pieceutil")
+local pieceutil = require([[src\emu-util\piece]])
 
 -- Command-line args
 guidebug = false
@@ -73,6 +72,7 @@ while true do
 
 	elseif state == states.reading then
 		decisionstring = pipe:read()
+		print(decisionstring)
 		local temp = {}
 		for token in decisionstring:gmatch("[^ ]+") do
 			table.insert(temp, token)
