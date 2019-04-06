@@ -283,7 +283,7 @@ struct decision_t {
  *
  * Holds information for the roster in bot_list.h.
  */
-struct bot {
+struct bot_t {
 	std::string name;
 	double (*function)(decision_t);
 };

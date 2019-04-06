@@ -1,29 +1,40 @@
 local winapi = require("winapi")
-local guiutil = require([[src\emu-util\gui]])
-local memutil = require([[src\emu-util\memory]])
+local guiutil = require("src/emu-util/gui")
+local memutil = require("src/emu-util/memory")
 local ram = memutil.ram
-local pieceutil = require([[src\emu-util\piece]])
+local pieceutil = require("src/emu-util/piece")
 
 -- Command-line args
-guidebug = false
+local guidebug = false
+local botname = "random"
 
 if arg then
-	for x in arg:gmatch("%w+") do
-		if x == "debug" then
-			guidebug = true
+	for x in arg:gmatch("%S+") do
+		if x:sub(1,1) == "-" then
+			if x == "-d" then
+				print("GUI debug on.")
+				guidebug = true
+			end
+		else
+			botname = x
 		end
 	end
+end
+if botname == "random" then
+	print("No bot name supplied, using random instead.")
 end
 
 -- Main 
 emu.speedmode("normal");
 
-local process, pipe = winapi.spawn_process "bin/bot"
+local process, pipe = winapi.spawn_process("bin/bot " .. botname)
 emu.registerexit(function()
 	pipe:write("20\n")
 	process:kill()
-	print("stopping")
+	print("Stoping.")
 end)
+-- Initial message
+print(pipe:read())
 
 local states = {
 	deciding = 1,

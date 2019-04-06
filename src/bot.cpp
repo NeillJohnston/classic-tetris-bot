@@ -1,4 +1,5 @@
 #include "bot.h"
+#include "bot_list.h"
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
@@ -108,23 +109,42 @@ decision_t decide(int curr_piece, int next_piece, const int grid[], double (*fun
 	return ans;
 }
 
-/* no_evaluation(x)
+/* get_bot(name)
  *
- * A placeholder evaluator that returns random values.
+ * Search bot_list for the specified bot.
+ * Will return the first bot in bot_list if none is found.
  */
-double no_evaluation(decision_t x) {
-	return rand();
+bot_t get_bot(string name) {
+	for (bot_t bot : bot_list) {
+		if (bot.name == name) {
+			return bot;
+		}
+	}
+
+	return bot_list[0];
 }
 
-int main() {
+int main(int argc, char** argv) {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	log.open("log");
-	log << to_string(time(NULL)) << " LOG" << '\n';
+	log.open("log\\" + to_string(time(NULL)) + ".log");
+
+	// Get bot from args
+	string bot_name = string(argv[1]);
+	bot_t bot = get_bot(bot_name);
+	log << "BOT NAME: " << bot.name << '\n';
 	log.flush();
 
+	if (bot_name != bot.name) {
+		cout << "Could not find " << bot_name << ", using " << bot.name << " instead.\n";
+	}
+	else {
+		cout << "Using " << bot.name << ".\n";
+	}
+
 	init();
+	cout.flush();
 
 	while (true) {
 		cin >> in_piece;
@@ -136,7 +156,7 @@ int main() {
 		fill_n(&in_grid[0], 2, EMPTY_ROW);
 		fill_n(&in_grid[22], 2, FULL_ROW);
 
-		decision_t decision = decide(in_piece, in_piece_next, in_grid, no_evaluation);
+		decision_t decision = decide(in_piece, in_piece_next, in_grid, bot.function);
 
 		cout <<
 			decision.piece << ' ' <<
