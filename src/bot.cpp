@@ -13,7 +13,7 @@ int in_grid [24];
 int in_piece;
 int in_piece_next;
 
-ofstream log;
+ofstream log_file;
 
 /* place(piece, grid)
  *
@@ -128,13 +128,13 @@ int main(int argc, char** argv) {
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 
-	log.open("log\\" + to_string(time(NULL)) + ".log");
+	log_file.open("log\\" + to_string(time(NULL)) + ".log");
 
 	// Get bot from args
 	string bot_name = string(argv[1]);
 	bot_t bot = get_bot(bot_name);
-	log << "BOT NAME: " << bot.name << '\n';
-	log.flush();
+	log_file << "BOT NAME: " << bot.name << '\n';
+	log_file.flush();
 
 	if (bot_name != bot.name) {
 		cout << "Could not find " << bot_name << ", using " << bot.name << " instead.\n";
@@ -164,13 +164,13 @@ int main(int argc, char** argv) {
 			decision.y << ' ' <<
 			decision.action;
 		cout.flush();
-		log <<
+		log_file <<
 			decision.piece << ' ' <<
 			decision.x << ' ' <<
 			decision.y << ' ' <<
 			decision.action << '\n';
-		log.flush();
+		log_file.flush();
 	}
 
-	log.close();
+	log_file.close();
 }
