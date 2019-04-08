@@ -17,7 +17,7 @@ A "bot" is basically a function that evaluates a decision and outputs a number, 
 
 1. In the src/bots/ directory, create a new .h file for your bot. Let's call it `newbot.h`.
 2. Copy the following into the file:
-```
+```C++
 #include "../bot.h"
 
 double newbot(decision_t decision) {
@@ -25,16 +25,29 @@ double newbot(decision_t decision) {
 }
 ```
 3. Replace `newbot` with whatever you want to call your function.
-4. Write your function. Good luck.
+4. Write your function. Good luck, more on this later.
 5. Navigate to the src/ directory and open `bot_list.h`.
 6. `#include` your header file.
 7. In the array `bot_list`, make a new entry:
+```C++
+{"newbot", newbot}
 ```
-{
-    "newbot",
-    newbot
-}
-```
-8. Replace newbot with your bot name.
+8. Again, replace `newbot` with your bot name.
 9. Save everything and run build.bat again.
 10. You're done! Now when you run the script in FCEUX, put your bot name in the arguments.
+
+## Bots
+
+### SRVIVE
+
+Short for "Survive" (or Senor Vive). One of the first bots, written to maxout through sheer force of will (a.k.a., getting a lot of lines). Here's a screenshot of SRVIVE making it all the way to the undefined territory from a level 19 start:
+
+![Undefined Levels](img/undefined_levels.png)
+
+### NOOBHR
+
+In honor of CTWC Tetris legend Jonas Neubauer. My attempt at writing an efficient bot, has maxed out a few times but needs some work.
+
+### XORSTK
+
+XOR-stack, a weird bit-manip-abuse bot with a 10-line evaluator function. Performs extremely well for its size.

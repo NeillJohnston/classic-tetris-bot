@@ -10,8 +10,8 @@
 const bot_t bot_list [] = {
 	{"random", random},
 	{"srvive", srvive},
-	{"atomic", atomic},
-	{"xorstk", xorstk},
+	{"noobhr", noobhr},
+	{"xorstk", xorstk}
 };
 
 #endif

@@ -23,7 +23,6 @@ vector<decision_t> place(int piece, const int grid[]) {
 	int drop_ys [19][10];
 	vector<decision_t> ans;
 
-
 	// Find locations for drops, use this information for other actions
 	for (int i = 0; i < N_ROTATIONS[piece]; i++) {
 		for (int x = piece_min_x[piece]; x <= piece_max_x[piece]; x++) {
